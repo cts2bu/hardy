@@ -30,7 +30,7 @@ print "Dictionary loaded."
 for item in os.listdir(doc_root):
     # This makes the assumption that you only have text files in your document folder and no sub-folders
     if os.path.isfile(doc_root + '/' + item):
-        print "Loading \'" + item + "\' into spaCy (this will take a while)..."
+        print "Loading \'" + item + "\' into spaCy..."
         doc = en_nlp(ingest_text(doc_root + '/' + item))
     else:
         print "Skipping \'" + item + "\'..."
@@ -51,7 +51,7 @@ for item in os.listdir(doc_root):
                 # TODO - revise parse mechanism; more robust, handle span lefts/rights of root, more pronouns, and names
                 # Very rudimentary and limited - pull any appearance with a male subject into the text file
                 if word.dep_ == 'nsubj' and word.text == 'he':
-                    # If this case is 'true,' we've found a relevant sentence, so pull it and tag its word dependencies
+                    # If this case is 'true,' we've found a relevant sentence, so pull it and tag word dependencies
                     print >> men_outfile, sentence
                     for tagged_word in sentence:
                         if tagged_word.dep_ != 'punct' and not tagged_word.is_space:
