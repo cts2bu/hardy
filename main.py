@@ -14,9 +14,18 @@ def ingest_text(file_url):
     text = f.read()
     return unicode(text, 'utf8')
 
+
+# A helper method - takes a sentence and a gender tag and writes it to the appropriate destination file
+def write_to_file(sentence, outfile):
+        print >> outfile, sentence
+        for tagged_word in sentence:
+            if tagged_word.dep_ != 'punct' and not tagged_word.is_space:
+                print >> outfile, tagged_word, " : ", tagged_word.dep_
+        print >> outfile, '---'
+
 # TODO - make a targeted list of names in the novels; currently the script only does very rudimentary pronoun search
-male_char_names = []
-female_char_names = []
+male_char_names = ['oak', 'gabriel', 'troy', 'boldwood']
+female_char_names = ['bathsheba']
 
 # First, set the document roots for input texts and the output text files.
 doc_root = 'corpus/unicode'  # Change this to whatever folder holds your texts
@@ -28,7 +37,7 @@ print "Dictionary loaded."
 
 # OK, now iterate through your document folder and pull the source files one by one
 for item in os.listdir(doc_root):
-    # This makes the assumption that you only have text files in your document folder and no sub-folders
+    # The script assumes that your doc_root folder only contains the text files to parse, but I check isfile anyway
     if os.path.isfile(doc_root + '/' + item):
         print "Loading \'" + item + "\' into spaCy..."
         doc = en_nlp(ingest_text(doc_root + '/' + item))
@@ -38,33 +47,43 @@ for item in os.listdir(doc_root):
 
     # Prepare the output file for writing
     print "Parsing \'" + item + "\'..."
-    men_outfile = open('output' + '/' + item.split('.')[0] + ' - Dependencies (Men).txt', 'w')
-    women_outfile = open('output' + '/' + item.split('.')[0] + ' - Dependencies (Women).txt', 'w')
+    male_outfile = open('output' + '/' + item.split('.')[0] + ' - Dependencies (Male).txt', 'w')
+    female_outfile = open('output' + '/' + item.split('.')[0] + ' - Dependencies (Female).txt', 'w')
+    rest_outfile = open('output' + '/' + item.split('.')[0] + ' - Dependencies (Other).txt', 'w')
 
     # Now we can parse the text!
     # For each sentence, tokenize the words and determine their dependency structure
     # End files will be anywhere from 500 KB to 3 MB each
     for sentence in doc.sents:
-        # print >> outfile, sentence
+        tagged = False
         for word in sentence:
-            # Skip punctuation and blank word tokens
-                # TODO - revise parse mechanism; more robust, handle span lefts/rights of root, more pronouns, and names
-                # Very rudimentary and limited - pull any appearance with a male subject into the text file
-                if word.dep_ == 'nsubj' and word.text == 'he':
-                    # If this case is 'true,' we've found a relevant sentence, so pull it and tag word dependencies
-                    print >> men_outfile, sentence
-                    for tagged_word in sentence:
-                        if tagged_word.dep_ != 'punct' and not tagged_word.is_space:
-                            print >> men_outfile, tagged_word, " : ", tagged_word.dep_
-                    print >> men_outfile, '---'
+            # TODO - nsubj v pobj.
+            # Check each word's part of speech. Do different things based on that part of speech.
+            if word.dep_ == 'nsubj':
+                subj = word.text.lower()
+                if subj == 'he' or subj in male_char_names:
+                    write_to_file(sentence, male_outfile)
+                    tagged = True
                     break
-                # Do likewise for female subjects
-                elif word.dep_ == 'nsubj' and word.text == 'she':
-                    print >> women_outfile, sentence
-                    for tagged_word in sentence:
-                        if tagged_word.dep_ != 'punct' and not tagged_word.is_space:
-                            print >> women_outfile, tagged_word, " : ", tagged_word.dep_
-                    print >> women_outfile, '---'
+                elif subj == 'she' or subj in female_char_names:
+                    write_to_file(sentence, female_outfile)
+                    tagged = True
                     break
-    men_outfile.close()
-    women_outfile.close()
+            elif word.dep_ == 'poss':
+                poss = word.text.lower()
+                if poss == 'his':
+                    write_to_file(sentence, male_outfile)
+                    tagged = True
+                    break
+                elif poss == 'her':
+                    write_to_file(sentence, female_outfile)
+                    tagged = True
+                    break
+            elif word.dep_ == 'pobj':
+                pobj = word.text.lower()
+        # If it's not specifically gendered, put it in the 'general' catch-all file.
+        if not tagged:
+            write_to_file(sentence, rest_outfile)
+    male_outfile.close()
+    female_outfile.close()
+    rest_outfile.close()
