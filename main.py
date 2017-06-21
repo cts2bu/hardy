@@ -6,6 +6,7 @@ King's College London 2017
 
 import spacy
 import os
+from collections import OrderedDict
 
 # Three lists to handle part of speech tagging.
 
@@ -16,16 +17,16 @@ POTENTIAL_TARGET_DEPS = ["dobj", "pobj", "poss"]
 
 # Two other lists to handle gendering referees in a sentence.
 # Probably missing some stuff, so still needs some refinement.
-MALE_TARGETS = ['he', 'him', 'his', 'man', 'himself', 'men', 'boy', 'boys', 'husband', 'father', 'uncle', 'mister',
+MALE_TARGETS = ['he', 'him', 'his', 'man', 'men', 'himself', 'boy', 'boys', 'husband', 'father', 'uncle', 'mister',
                 'mr.', 'sir', 'gabriel', 'oak', 'francis', 'frank', 'troy', 'william', 'boldwood', 'jan', 'coggan',
-                'joseph', 'poorgrass', 'cain', 'cainy', 'ball', 'pennyways', 'billy', 'jude', 'fawley', 'richard',
-                'phillotson', 'angel', 'clare', 'alec', "d'urberville", 'john', 'durbeyfield', 'felix', 'cuthbert',
-                'michael', 'henchard', 'donald', 'farfrae', 'newson', 'joshua', 'jopp', 'abel', 'whittle', 'benjamin',
-                'grower', 'christopher', 'coney', 'nance', 'mockridge', 'solomon', 'longways', 'schoolmaster']
-FEMALE_TARGETS = ['she', 'her', 'woman', 'herself', 'women', 'girl', 'girls', 'wife', 'mother', 'aunt', 'miss', 'ms.',
+                'joseph', 'poorgrass', 'cain', 'cainy', 'ball', 'pennyways', 'billy', 'jacob', 'jude', 'fawley',
+                'richard', 'phillotson', 'angel', 'clare', 'alec', "d'urberville", 'john', 'durbeyfield', 'felix',
+                'cuthbert', 'michael', 'henchard', 'donald', 'farfrae', 'newson', 'joshua', 'jopp', 'abel', 'whittle',
+                'benjamin', 'grower', 'christopher', 'coney', 'nance', 'mockridge', 'solomon', 'longways', 'male']
+FEMALE_TARGETS = ['she', 'her', 'woman', 'women', 'herself', 'girl', 'girls', 'wife', 'mother', 'aunt', 'miss', 'ms.',
                   'mrs.', 'maid', 'maiden', 'bathsheba', 'everdene', 'fanny', 'robin', 'liddy', 'sue', 'susanna',
                   'bridehead', 'arabella', 'donn', 'drusilla', 'tess', 'joan', 'marian', 'izz', 'huett', 'retty',
-                  'priddle', 'eliza', 'elizabeth', 'elizabeth-jane', 'lucetta', 'templeton', 'susan']
+                  'priddle', 'eliza', 'elizabeth', 'elizabeth-jane', 'lucetta', 'templeton', 'susan', 'female']
 
 """
 Helper methods I wrote.
@@ -100,14 +101,14 @@ def find_svos(tokens):
 
 # Now, we're into the main part of the program.
 
-doc_root = 'corpus/testing'  # Change this to whatever folder holds your texts
+doc_root = 'corpus/unicode'  # Change this to whatever folder holds your texts
 out_dir = 'output'  # Change this to whatever folder will hold your outputted files
 
 print "Loading spaCy dictionary (this will take a while)..."
 en_nlp = spacy.load('en')  # Load the spaCy dictionary
 print "Dictionary loaded."
 
-svo_counts = {}
+svo_counts = OrderedDict()  # Used to track total number of SVOs across all documents
 # OK, now iterate through your document folder and pull the source files one by one
 for item in os.listdir(doc_root):
     # The script assumes that your doc_root folder only contains the text files to parse, but I check isfile anyway
@@ -128,7 +129,7 @@ for item in os.listdir(doc_root):
     # TODO - Maybe have an 'I' file and a 'they' file?
     rest_outfile = open('output' + '/' + item.split('.')[0] + ' - Dependencies (Other).txt', 'w')
     """
-    # Use this for a a one file-per-gender pass
+    # Use this for a a one ile-per-gender pass
     male_outfile = open('output/All Dependencies (Male).txt', 'w')
     female_outfile = open('output/All Dependencies (Female).txt', 'w')
     rest_outfile = open('output/All Dependencies (Other).txt', 'w')
@@ -184,7 +185,7 @@ for item in os.listdir(doc_root):
             # Now, assuming we have something to add, figure out the gender of the SVO
             # We don't want to write the same SVO to the same file twice, but the same SVO *can* go in both files
             if target_words:
-                target_words = sorted(target_words, key=lambda target_word: target_word.i)  # Sorts by original order
+                target_words = sorted(target_words, key=lambda target_word: target_word.i)  # Sorts by sentence order
                 written_to_male_file = False  # Tracks whether we've written to a male file
                 written_to_female_file = False  # Tracks whether we've written to the female file
                 svo_subject = svo_subject.text.lower()  # Make the subject lowercase for easier comparisons
