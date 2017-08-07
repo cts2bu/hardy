@@ -145,6 +145,7 @@ for item in os.listdir(doc_root):
     # Finally, create a running tracker of the number of SVOs found for each gender.
     male_svo_count = 0
     female_svo_count = 0
+    other_svo_count = 0
 
     # So, SVO == subject, verb, and object phrase + adjectival context
     # This block of code parses every sentence of the text for these SVOs, and then:
@@ -214,12 +215,14 @@ for item in os.listdir(doc_root):
                 # If we can't place it anywhere, throw the SVO in the file of shame
                 else:
                     write_to_file(target_words, rest_outfile)
+                    other_svo_count += 1
     male_outfile.close()
     female_outfile.close()
     rest_outfile.close()
 
     svo_counts['Male SVOs in ' + book_title] = male_svo_count
     svo_counts['Female SVOs in ' + book_title] = female_svo_count
+    svo_counts['Other SVOs in ' + book_title] = other_svo_count
 
 # Print the total number of SVOs per gender per text
 for filename in svo_counts.keys():
