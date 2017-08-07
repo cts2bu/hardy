@@ -103,8 +103,7 @@ def find_svos(tokens):
         # Get descriptors of that verb (before or after verb)
         verb_descriptors = []
         for token in verb.lefts:
-            if verb in list(token.ancestors) and token.dep_ in ADJECTIVES_AND_ADVERBS:  # Find modifiers
-                add_token_and_dependencies(token, verb_descriptors)
+            add_token_and_dependencies(token, verb_descriptors)  # Find modifiers
         # Get object parts (right subtree of the verb)
         object_words = []
         for token in verb.rights:
