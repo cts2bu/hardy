@@ -15,7 +15,7 @@ from collections import OrderedDict
 SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
 ADJECTIVES_AND_ADVERBS = ["acomp", "advcl", "advmod", "amod", "appos", "nn", "nmod", "ccomp", "complm", "hmod",
                           "infmod", "xcomp", "rcmod", "poss", "possessive", "aux", "neg", "auxpass"]
-POTENTIAL_TARGET_DEPS = ["dobj", "pobj", "poss", "attr", "oprd"]
+POTENTIAL_TARGET_DEPS = ["dobj", "pobj", "iobj", "poss", "attr", "oprd"]
 
 # Two other lists to handle gender of male and female subjects and objects.
 # Probably missing some characters and specifics, but for the scale of this project is mostly fine.
@@ -133,7 +133,7 @@ for item in os.listdir(doc_root):
         print "Skipping \'" + item + "\'..."
         continue
 
-    book_title = item.split('.')[0]  # This assumes the files you're reading are saved like <title>.txt
+    book_title = item.split('.')[0]  # This assumes the files you'repobj reading are saved like <title>.txt
 
     # Prepare the output file for writing
     print 'Parsing ' + book_title + '...'
@@ -193,7 +193,8 @@ for item in os.listdir(doc_root):
                     write_to_file(target_words, female_outfile)
                     female_svo_count += 1
                 # Hard part: need to check for the multifarious other situations.
-                # Check pobjs (passive objects), then dobjs (dative objects), poss (possessives), then subjects again
+                # Check objects (of prepositions, direct, indirect), possession, attributes, object predicate
+                # Then, finally, subject again
                 # The second subject check is necessary, otherwise a particularly large svo may go in the wrong file
                 elif any(word.text.lower() in MALE_TARGETS and word.dep_ in POTENTIAL_TARGET_DEPS
                          for word in target_words):
