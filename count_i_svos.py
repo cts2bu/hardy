@@ -5,8 +5,8 @@ Christopher Smith
 King's College London 2017
 """
 
-# This short file helps with Chapter 4 of my dissertation.
-# It is structurally very similar to main, except it merely counts the number of SVOs with "I" as the subject.
+# This short file is used in Chapter 4 of my dissertation to help discuss the role of 'I' dialogue SVOs.
+# It is structurally very similar to main, except it only counts the number of SVOs with "I" as the subject.
 
 import spacy
 import os
