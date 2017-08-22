@@ -150,9 +150,9 @@ def process_files():
         # Prepare the output file for writing
         print 'Parsing ' + book_title + '...'
         # Create one output file for men, one for women, and one for non-specified genders for the current text
-        male_outfile = open(out_dir + '/' + item.split('.')[0] + ' - Dependencies (Male).txt', 'w')
-        female_outfile = open(out_dir + '/' + item.split('.')[0] + ' - Dependencies (Female).txt', 'w')
-        rest_outfile = open(out_dir + '/' + item.split('.')[0] + ' - Dependencies (Other).txt', 'w')
+        male_outfile = open(out_dir + '/' + item.split('.')[0] + ' - SVOs (Male).txt', 'w')
+        female_outfile = open(out_dir + '/' + item.split('.')[0] + ' - SVOs (Female).txt', 'w')
+        rest_outfile = open(out_dir + '/' + item.split('.')[0] + ' - SVOs (Other).txt', 'w')
         # Create a running tracker of the number of SVOs found for each gender.
         male_svo_count = 0
         female_svo_count = 0
