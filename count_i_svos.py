@@ -24,29 +24,29 @@ POTENTIAL_TARGET_DEPS = ["dobj", "pobj", "iobj", "poss", "attr", "oprd"]
 
 # The driver of the program.
 # Reads in the Hardy texts, finds the SVOs, and checks to see if the subject is 'I.'
-def process_files():
+def count_i_svos():
     doc_root = 'corpus/unicode'  # Change this to whatever folder holds your texts
 
     # Load the spaCy dictionary
-    print "Loading spaCy dictionary (this will take a while)..."
+    print("Loading spaCy dictionary (this will take a while)...")
     en_nlp = spacy.load('en')
-    print "Dictionary loaded."
+    print("Dictionary loaded.")
 
     svo_counts = OrderedDict()  # Used to track total number of SVOs across all documents
     # Now, iterate through your document folder and pull the source files one by one
     for item in os.listdir(doc_root):
         # The script assumes that your doc_root folder only contains the text files to parse, but I check isfile anyway
         if os.path.isfile(doc_root + '/' + item):
-            print "Loading \'" + item + "\' into spaCy..."
+            print("Loading \'" + item + "\' into spaCy...")
             doc = en_nlp(ingest_text(doc_root + '/' + item))
         else:
-            print "Skipping \'" + item + "\'..."
+            print("Skipping \'" + item + "\'...")
             continue
 
         book_title = item.split('.')[0]  # This assumes the files you'repobj reading are saved like <title>.txt
 
         # Prepare the file for parsing
-        print 'Parsing ' + book_title + '...'
+        print('Parsing ' + book_title + '...')
         # Create a running tracker of the number of SVOs found with 'I' as the subject.
         i_svo_count = 0
         # So, SVO == subject, verb, and object phrase + adjectival context
@@ -64,12 +64,9 @@ def process_files():
 
     # Print the total number of SVOs per gender per text
     for filename in svo_counts.keys():
-        print filename + ': ' + str(svo_counts[filename])
+        print(filename + ': ' + str(svo_counts[filename]))
 
 
 # Run the program!
-def main():
-    process_files()
-
 if __name__ == '__main__':
-    main()
+    count_i_svos()

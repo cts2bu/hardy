@@ -32,13 +32,13 @@ FEMALE_TARGETS = ['she', 'her', 'woman', 'women', 'herself', 'girl', 'girls', 'w
 SPEAKING_WORDS = ["said", "replied", "asked", "answered", "noted", "observed"]
 
 
-
-# A helper method - read in a file at the specified filesystem location and return it as a text block for spaCy ingest.
+# A helper method.
+# Read in a file at the specified filesystem location and return it as a text block for spaCy ingest.
 # I also have a sanity check at the end to encode the text in unicode - spaCy is picky that way.
 def ingest_text(file_url):
     f = open(file_url, 'r')
     text = f.read()
-    return unicode(text, 'utf8')
+    return text
 
 
 # A helper method - take a sentence and a gender tag and write it to the appropriate destination file.
@@ -57,8 +57,8 @@ def write_to_file(sentence_tokens, outfile):
             joined_sentence += ' '
         else:  # Otherwise, the next token starts with punctuation of some sort, so don't add the extra space
             joined_sentence += curr_token.orth_
-    print >> outfile, joined_sentence.encode('utf8')
-    print >> outfile, '---'
+    print(joined_sentence, file=outfile)
+    print("---", file=outfile)
 
 
 # A helper method - splits out the task of adding a token to a dependency list since it's repeated so much.
@@ -130,25 +130,25 @@ def process_files():
     out_dir = 'output'  # Change this to whatever folder will hold your outputted files
 
     # Load the spaCy dictionary
-    print "Loading spaCy dictionary (this will take a while)..."
+    print("Loading spaCy dictionary (this will take a while)...")
     en_nlp = spacy.load('en')
-    print "Dictionary loaded."
+    print("Dictionary loaded.")
 
     svo_counts = OrderedDict()  # Used to track total number of SVOs across all documents
     # Now, iterate through your document folder and pull the source files one by one
     for item in os.listdir(doc_root):
         # The script assumes that your doc_root folder only contains the text files to parse, but I check isfile anyway
         if os.path.isfile(doc_root + '/' + item):
-            print "Loading \'" + item + "\' into spaCy..."
+            print("Loading \'" + item + "\' into spaCy...")
             doc = en_nlp(ingest_text(doc_root + '/' + item))
         else:
-            print "Skipping \'" + item + "\'..."
+            print("Skipping \'" + item + "\'...")
             continue
 
         book_title = item.split('.')[0]  # This assumes the files you'repobj reading are saved like <title>.txt
 
         # Prepare the output file for writing
-        print 'Parsing ' + book_title + '...'
+        print('Parsing ' + book_title + '...')
         # Create one output file for men, one for women, and one for non-specified genders for the current text
         male_outfile = open(out_dir + '/' + item.split('.')[0] + ' - SVOs (Male).txt', 'w')
         female_outfile = open(out_dir + '/' + item.split('.')[0] + ' - SVOs (Female).txt', 'w')
@@ -282,12 +282,9 @@ def process_files():
 
     # Print the total number of SVOs per gender per text
     for filename in svo_counts.keys():
-        print filename + ': ' + str(svo_counts[filename])
+        print(filename + ': ' + str(svo_counts[filename]))
 
 
 # Run the program!
-def main():
-    process_files()
-
 if __name__ == '__main__':
-    main()
+    process_files()
